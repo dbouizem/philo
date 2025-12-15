@@ -1,4 +1,4 @@
-#include "philo.h"
+#include "../includes/philo.h"
 
 // Format attendu:
 // ./philo nb_philos time_to_die time_to_eat time_to_sleep [nb_meals]
