@@ -8,9 +8,12 @@ OBJ_DIR = obj
 
 SRCS =	main.c \
 		src/parsing.c \
-		src/tools.c \
+		src/print.c \
+		src/utils.c \
 		src/time.c \
 		src/init.c \
+		src/forks.c \
+		src/cleanup.c \
 		src/actions.c \
 		src/routine.c \
 		src/monitor.c

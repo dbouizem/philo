@@ -17,11 +17,12 @@ void	*philosopher_routine(void *arg)
 	if (philo->data->nb_philos == 1)
 		return (one_philo_routine(philo));
 	if (philo->id % 2 == 0)
-		ft_usleep(1, philo->data);
+		ft_usleep(philo->data->time_to_eat / 2, philo->data);
 	while (!check_simulation_ended(philo->data))
 	{
 		think(philo);
-		take_forks(philo);
+		if (!take_forks(philo))
+			break ;
 		eat(philo);
 		put_down_forks(philo);
 		sleep_philo(philo);

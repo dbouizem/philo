@@ -1,7 +1,7 @@
 #include "../includes/philo.h"
 
-// Format attendu:
-// ./philo nb_philos time_to_die time_to_eat time_to_sleep [nb_meals]
+/* Format attendu:
+./philo nb_philos time_to_die time_to_eat time_to_sleep [nb_meals] */
 
 static int	check_overflow(t_data *data)
 {
@@ -53,6 +53,22 @@ static int	validate_all_numbers(int argc, char **argv)
 	return (0);
 }
 
+static int	set_nb_meals(int argc, char **argv, t_data *data)
+{
+	if (argc == 6)
+	{
+		data->nb_meals = ft_atoi(argv[5]);
+		if (data->nb_meals == -1)
+		{
+			print_error("Error: Value too large (max 2147483647)");
+			return (1);
+		}
+	}
+	else
+		data->nb_meals = -1;
+	return (0);
+}
+
 int	parse_arguments(int argc, char **argv, t_data *data)
 {
 	if (argc < 5 || argc > 6)
@@ -70,13 +86,7 @@ int	parse_arguments(int argc, char **argv, t_data *data)
 	data->time_to_sleep = ft_atoi(argv[4]);
 	if (check_overflow(data) != 0)
 		return (1);
-	if (argc == 6)
-	{
-		data->nb_meals = ft_atoi(argv[5]);
-		if (data->nb_meals == -1)
-			return (print_error("Error: Value too large (max 2147483647)"), 1);
-	}
-	else
-		data->nb_meals = -1;
+	if (set_nb_meals(argc, argv, data) != 0)
+		return (1);
 	return (check_positive_values(data, argc));
 }

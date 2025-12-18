@@ -48,37 +48,15 @@ int	init_simulation(t_data *data)
 {
 	data->simulation_ended = 0;
 	if (init_mutexes(data) != 0)
-		return (print_error("Error: Failed to initialize mutexes"), 1);
+	{
+		print_error("Error: Failed to initialize mutexes");
+		return (1);
+	}
 	data->start_time = get_time_in_ms();
 	if (init_philosophers(data) != 0)
-		return (print_error("Error: Failed to initialize philosophers"), 1);
+	{
+		print_error("Error: Failed to initialize philosophers");
+		return (1);
+	}
 	return (0);
-}
-
-void	cleanup_simulation(t_data *data)
-{
-	int	i;
-
-	if (data->philos)
-	{
-		i = 0;
-		while (i < data->nb_philos)
-		{
-			pthread_mutex_destroy(&data->philos[i].meal_mutex);
-			i++;
-		}
-		free(data->philos);
-	}
-	if (data->forks)
-	{
-		i = 0;
-		while (i < data->nb_philos)
-		{
-			pthread_mutex_destroy(&data->forks[i]);
-			i++;
-		}
-		free(data->forks);
-	}
-	pthread_mutex_destroy(&data->print_mutex);
-	pthread_mutex_destroy(&data->stop_mutex);
 }
