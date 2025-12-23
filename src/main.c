@@ -1,4 +1,4 @@
-#include "includes/philo.h"
+#include "../includes/philo.h"
 
 static void	wait_philosophers(t_data *data)
 {
