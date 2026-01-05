@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo_bonus.h                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dbouizem <djihane.bouizem@gmail.com>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/05 01:26:57 by dbouizem          #+#    #+#             */
+/*   Updated: 2026/01/05 01:26:58 by dbouizem         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef PHILO_BONUS_H
 # define PHILO_BONUS_H
 
@@ -14,6 +26,8 @@
 
 # define SEM_FORKS "/philo_forks"
 # define SEM_PRINT "/philo_print"
+# define SEM_STOP "/philo_stop"
+# define SEM_SEATS "/philo_seats"
 
 typedef struct s_philo	t_philo;
 
@@ -27,6 +41,8 @@ typedef struct s_data
 	long	start_time;
 	sem_t	*forks;
 	sem_t	*print_sem;
+	sem_t	*stop_sem;
+	sem_t	*seats_sem;
 	t_philo	*philos;
 }	t_data;
 
@@ -36,6 +52,7 @@ typedef struct s_philo
 	pid_t		pid;
 	long		last_meal_time;
 	int			meals_eaten;
+	sem_t		*meal_sem;
 	pthread_t	monitor_thread;
 	t_data		*data;
 }	t_philo;
