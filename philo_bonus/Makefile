@@ -32,7 +32,7 @@ $(NAME): $(OBJS)
 $(OBJ_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) -c $< -o $@
-	@echo "$(GREEN)Compiling $<$(RESET)"
+	@echo "$(GREEN)✓$(RESET) Compiling $<"
 
 clean:
 	@$(RM) -r $(OBJ_DIR)
