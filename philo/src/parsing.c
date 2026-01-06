@@ -6,14 +6,11 @@
 /*   By: dbouizem <djihane.bouizem@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/05 01:24:42 by dbouizem          #+#    #+#             */
-/*   Updated: 2026/01/05 01:24:43 by dbouizem         ###   ########.fr       */
+/*   Updated: 2026/01/06 04:19:52 by dbouizem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
-
-/* Format attendu:
-./philo nb_philos time_to_die time_to_eat time_to_sleep [nb_meals] */
 
 static int	check_overflow(t_data *data)
 {

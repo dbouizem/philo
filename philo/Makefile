@@ -28,7 +28,7 @@ all: $(NAME)
 
 $(NAME): $(OBJS)
 	@$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
-	@echo "$(GREEN)✅ $(NAME) successfully created!$(RESET)"
+	@echo "$(GREEN)$(NAME) successfully created!$(RESET)"
 
 $(OBJ_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
@@ -37,11 +37,11 @@ $(OBJ_DIR)/%.o: %.c
 
 clean:
 	@$(RM) -r $(OBJ_DIR)
-	@echo "$(YELLOW)🗑️  obj/ directory removed$(RESET)"
+	@echo "$(YELLOW)obj/ directory removed$(RESET)"
 
 fclean: clean
 	@$(RM) $(NAME)
-	@echo "$(YELLOW)🗑️  $(NAME) removed$(RESET)"
+	@echo "$(YELLOW)$(NAME) removed$(RESET)"
 
 re: fclean all
 
