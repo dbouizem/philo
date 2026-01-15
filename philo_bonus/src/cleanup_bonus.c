@@ -12,20 +12,46 @@
 
 #include "../includes/philo_bonus.h"
 
-static void	close_semaphores(t_data *data)
+static void	close_semaphores(t_data *data, int unlink_names)
 {
 	if (data->forks && data->forks != SEM_FAILED)
 		sem_close(data->forks);
 	if (data->print_sem && data->print_sem != SEM_FAILED)
 		sem_close(data->print_sem);
-	if (data->stop_sem && data->stop_sem != SEM_FAILED)
-		sem_close(data->stop_sem);
 	if (data->seats_sem && data->seats_sem != SEM_FAILED)
 		sem_close(data->seats_sem);
-	sem_unlink(SEM_FORKS);
-	sem_unlink(SEM_PRINT);
-	sem_unlink(SEM_STOP);
-	sem_unlink(SEM_SEATS);
+	if (unlink_names)
+	{
+		sem_unlink(SEM_FORKS);
+		sem_unlink(SEM_PRINT);
+		sem_unlink(SEM_SEATS);
+	}
+}
+
+void	signal_stop(t_data *data)
+{
+	int	i;
+
+	i = 0;
+	while (i < data->nb_philos)
+	{
+		if (data->philos[i].stop_sem
+			&& data->philos[i].stop_sem != SEM_FAILED)
+			sem_post(data->philos[i].stop_sem);
+		i++;
+	}
+	i = 0;
+	while (i < data->nb_philos)
+	{
+		if (data->seats_sem && data->seats_sem != SEM_FAILED)
+			sem_post(data->seats_sem);
+		if (data->forks && data->forks != SEM_FAILED)
+		{
+			sem_post(data->forks);
+			sem_post(data->forks);
+		}
+		i++;
+	}
 }
 
 void	cleanup_data(t_data *data)
@@ -40,9 +66,34 @@ void	cleanup_data(t_data *data)
 			if (data->philos[i].meal_sem
 				&& data->philos[i].meal_sem != SEM_FAILED)
 				sem_close(data->philos[i].meal_sem);
+			if (data->philos[i].stop_sem
+				&& data->philos[i].stop_sem != SEM_FAILED)
+				sem_close(data->philos[i].stop_sem);
 			i++;
 		}
 		free(data->philos);
 	}
-	close_semaphores(data);
+	close_semaphores(data, 1);
+}
+
+void	cleanup_child(t_data *data)
+{
+	int	i;
+
+	if (data->philos)
+	{
+		i = 0;
+		while (i < data->nb_philos)
+		{
+			if (data->philos[i].meal_sem
+				&& data->philos[i].meal_sem != SEM_FAILED)
+				sem_close(data->philos[i].meal_sem);
+			if (data->philos[i].stop_sem
+				&& data->philos[i].stop_sem != SEM_FAILED)
+				sem_close(data->philos[i].stop_sem);
+			i++;
+		}
+		free(data->philos);
+	}
+	close_semaphores(data, 0);
 }

@@ -12,22 +12,6 @@
 
 #include "../includes/philo_bonus.h"
 
-void	take_forks(t_philo *philo)
-{
-	sem_wait(philo->data->seats_sem);
-	sem_wait(philo->data->forks);
-	print_status(philo, "has taken a fork");
-	sem_wait(philo->data->forks);
-	print_status(philo, "has taken a fork");
-}
-
-void	put_down_forks(t_philo *philo)
-{
-	sem_post(philo->data->forks);
-	sem_post(philo->data->forks);
-	sem_post(philo->data->seats_sem);
-}
-
 void	eat(t_philo *philo)
 {
 	sem_wait(philo->meal_sem);
@@ -35,13 +19,13 @@ void	eat(t_philo *philo)
 	philo->meals_eaten++;
 	sem_post(philo->meal_sem);
 	print_status(philo, "is eating");
-	ft_usleep(philo->data->time_to_eat);
+	ft_usleep(philo->data, philo->data->time_to_eat);
 }
 
 void	sleep_philo(t_philo *philo)
 {
 	print_status(philo, "is sleeping");
-	ft_usleep(philo->data->time_to_sleep);
+	ft_usleep(philo->data, philo->data->time_to_sleep);
 }
 
 void	think(t_philo *philo)
@@ -57,5 +41,5 @@ void	think(t_philo *philo)
 	if (slack <= 0)
 		return ;
 	think_time = slack / 2;
-	ft_usleep(think_time);
+	ft_usleep(philo->data, think_time);
 }

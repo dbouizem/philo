@@ -18,7 +18,6 @@ static int	init_semaphores(t_data *data)
 
 	sem_unlink(SEM_FORKS);
 	sem_unlink(SEM_PRINT);
-	sem_unlink(SEM_STOP);
 	sem_unlink(SEM_SEATS);
 	data->forks = sem_open(SEM_FORKS, O_CREAT, 0644, data->nb_philos);
 	if (data->forks == SEM_FAILED)
@@ -26,9 +25,6 @@ static int	init_semaphores(t_data *data)
 	data->print_sem = sem_open(SEM_PRINT, O_CREAT, 0644, 1);
 	if (data->print_sem == SEM_FAILED)
 		return (print_error("Error: sem_open print"), 1);
-	data->stop_sem = sem_open(SEM_STOP, O_CREAT, 0644, 1);
-	if (data->stop_sem == SEM_FAILED)
-		return (print_error("Error: sem_open stop"), 1);
 	seats = data->nb_philos - 1;
 	if (seats < 1)
 		seats = 1;
@@ -38,9 +34,8 @@ static int	init_semaphores(t_data *data)
 	return (0);
 }
 
-static void	build_meal_sem_name(char *name, int id)
+static void	build_sem_name(char *name, int id, const char *prefix)
 {
-	const char	*prefix = "/philo_meal_";
 	char		tmp[12];
 	int			i;
 	int			j;
@@ -73,11 +68,19 @@ static int	init_philo_entry(t_data *data, int i)
 	data->philos[i].meals_eaten = 0;
 	data->philos[i].last_meal_time = data->start_time;
 	data->philos[i].data = data;
-	build_meal_sem_name(name, data->philos[i].id);
+	data->philos[i].monitor_started = 0;
+	data->philos[i].stop_started = 0;
+	build_sem_name(name, data->philos[i].id, "/philo_meal_");
 	sem_unlink(name);
 	data->philos[i].meal_sem = sem_open(name, O_CREAT, 0644, 1);
 	if (data->philos[i].meal_sem == SEM_FAILED)
 		return (print_error("Error: sem_open meal"), 1);
+	sem_unlink(name);
+	build_sem_name(name, data->philos[i].id, "/philo_stop_");
+	sem_unlink(name);
+	data->philos[i].stop_sem = sem_open(name, O_CREAT, 0644, 0);
+	if (data->philos[i].stop_sem == SEM_FAILED)
+		return (print_error("Error: sem_open stop"), 1);
 	sem_unlink(name);
 	return (0);
 }
@@ -93,6 +96,7 @@ static int	init_philos(t_data *data)
 	while (i < data->nb_philos)
 	{
 		data->philos[i].meal_sem = SEM_FAILED;
+		data->philos[i].stop_sem = SEM_FAILED;
 		if (init_philo_entry(data, i) != 0)
 			return (1);
 		i++;
@@ -103,6 +107,8 @@ static int	init_philos(t_data *data)
 int	init_data(t_data *data)
 {
 	data->start_time = get_time_in_ms();
+	data->stop = 0;
+	data->exit_status = 0;
 	if (init_semaphores(data) != 0)
 		return (1);
 	if (init_philos(data) != 0)

@@ -20,13 +20,13 @@ long	get_time_in_ms(void)
 	return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
 }
 
-void	ft_usleep(long duration_ms)
+void	ft_usleep(t_data *data, long duration_ms)
 {
 	long	start;
 	long	elapsed;
 
 	start = get_time_in_ms();
-	while (1)
+	while (!data->stop)
 	{
 		elapsed = get_time_in_ms() - start;
 		if (elapsed >= duration_ms)

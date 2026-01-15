@@ -34,11 +34,16 @@ void	print_status(t_philo *philo, char *status)
 	int		is_death;
 
 	is_death = (status[0] == 'd');
-	sem_wait(philo->data->stop_sem);
+	if (philo->data->stop && !is_death)
+		return ;
 	sem_wait(philo->data->print_sem);
+	if (philo->data->stop && !is_death)
+	{
+		sem_post(philo->data->print_sem);
+		return ;
+	}
 	timestamp = get_time_in_ms() - philo->data->start_time;
-	printf("%ld %d %s\n", timestamp, philo->id, status);
+	if (!philo->data->stop || is_death)
+		printf("%ld %d %s\n", timestamp, philo->id, status);
 	sem_post(philo->data->print_sem);
-	if (!is_death)
-		sem_post(philo->data->stop_sem);
 }

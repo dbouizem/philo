@@ -18,15 +18,19 @@ void	*monitor_routine(void *arg)
 	long	last_meal_time;
 
 	philo = (t_philo *)arg;
-	while (1)
+	while (!philo->data->stop)
 	{
-		sem_wait(philo->meal_sem);
+		if (sem_wait(philo->meal_sem) != 0)
+			continue ;
 		last_meal_time = philo->last_meal_time;
 		sem_post(philo->meal_sem);
 		if (get_time_in_ms() - last_meal_time > philo->data->time_to_die)
 		{
+			philo->data->exit_status = 1;
+			philo->data->stop = 1;
 			print_status(philo, "died");
-			exit(1);
+			signal_stop(philo->data);
+			return (NULL);
 		}
 		usleep(1000);
 	}

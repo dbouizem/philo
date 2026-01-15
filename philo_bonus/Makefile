@@ -11,8 +11,9 @@ SRCS =	src/main_bonus.c \
 		src/init_bonus.c \
 		src/time_bonus.c \
 		src/utils_bonus.c \
-		src/monitor_bonus.c \
-		src/actions_bonus.c \
+	src/monitor_bonus.c \
+	src/forks_bonus.c \
+	src/actions_bonus.c \
 		src/routine_bonus.c \
 		src/print_bonus.c \
 		src/cleanup_bonus.c

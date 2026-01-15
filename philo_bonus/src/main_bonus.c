@@ -12,35 +12,25 @@
 
 #include "../includes/philo_bonus.h"
 
-static void	kill_all(t_data *data)
-{
-	int	i;
-
-	i = 0;
-	while (i < data->nb_philos)
-	{
-		if (data->philos[i].pid > 0)
-			kill(data->philos[i].pid, SIGKILL);
-		i++;
-	}
-}
-
 static void	wait_children(t_data *data)
 {
 	int		i;
 	int		status;
 	pid_t	pid;
+	int		stopped;
 
 	i = 0;
+	stopped = 0;
 	while (i < data->nb_philos)
 	{
 		pid = waitpid(-1, &status, 0);
 		if (pid == -1)
 			break ;
-		if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+		if (!stopped && ((WIFEXITED(status) && WEXITSTATUS(status) != 0)
+				|| WIFSIGNALED(status)))
 		{
-			kill_all(data);
-			break ;
+			signal_stop(data);
+			stopped = 1;
 		}
 		i++;
 	}
@@ -73,7 +63,7 @@ int	main(int argc, char **argv)
 		return (1);
 	if (create_processes(&data) != 0)
 	{
-		kill_all(&data);
+		signal_stop(&data);
 		cleanup_data(&data);
 		return (1);
 	}
