@@ -1,10 +1,10 @@
-# 🍝 Philosophers (philo + philo_bonus)
+#  Philosophers (philo + philo_bonus)
 
 > *"I think, therefore I am... hungry"* - Dining Philosophers
 
 ---
 
-## 📋 Table des matières
+##  Table des matières
 
 1. [Description du projet](#-description-du-projet)
 2. [Structure du dépôt](#-structure-du-dépôt)
@@ -19,13 +19,13 @@
 
 ---
 
-## 📖 Description du projet
+##  Description du projet
 
 ### Le problème des philosophes dîneurs
 
 Le projet **Philosophers** est une implémentation en C du célèbre problème de synchronisation créé par Edsger Dijkstra en 1965.
 
-#### 🎭 Le scénario
+####  Le scénario
 
 N philosophes sont assis autour d'une table ronde. Devant chaque philosophe se trouve un bol de spaghetti. Entre chaque paire de philosophes se trouve une fourchette (donc N fourchettes au total).
 
@@ -39,34 +39,34 @@ N philosophes sont assis autour d'une table ronde. Devant chaque philosophe se t
            🍴
 ```
 
-#### 🔄 Le cycle de vie d'un philosophe
+####  Le cycle de vie d'un philosophe
 
 Un philosophe alterne entre trois états :
 1. **🤔 PENSER** : Réfléchir sur les mystères de l'univers
 2. **🍝 MANGER** : Nécessite **2 fourchettes** (gauche ET droite)
 3. **😴 DORMIR** : Se reposer après avoir mangé
 
-#### 📏 Les règles
+####  Les règles
 
 - Un philosophe doit avoir **2 fourchettes** pour manger
 - Un philosophe **prend une fourchette à la fois**
 - Un philosophe **pose ses fourchettes** après avoir mangé
 - Les fourchettes sont des **ressources partagées** (exclusivité mutuelle)
 
-#### 🎯 Conditions d'arrêt
+####  Conditions d'arrêt
 
 La simulation s'arrête quand :
 - ❌ **Un philosophe meurt** : n'a pas mangé pendant `time_to_die` millisecondes
 - ✅ **Objectif atteint** : tous les philosophes ont mangé `nb_meals` fois (optionnel)
 
-#### 🚧 Les défis à résoudre
+####  Les défis à résoudre
 
 1. **Deadlock (interblocage)** : Tous prennent 1 fourchette et attendent la 2e indéfiniment
 2. **Race conditions** : Accès concurrent aux ressources partagées
 3. **Starvation (famine)** : Un philosophe ne parvient jamais à obtenir 2 fourchettes
 4. **Data races** : Lectures/écritures simultanées sur les mêmes données
 
-### 🎓 Objectifs pédagogiques
+###  Objectifs pédagogiques
 
 Ce projet permet d'apprendre :
 
@@ -76,7 +76,7 @@ Ce projet permet d'apprendre :
 - ✅ L'utilisation de la **mémoire partagée** vs **isolée**
 - ✅ La **précision temporelle** en programmation système
 
-### 📊 Deux implémentations
+###  Deux implémentations
 
 | Aspect | Philo (mandatory) | Philo_bonus |
 |--------|-------------------|-------------|
@@ -87,7 +87,7 @@ Ce projet permet d'apprendre :
 
 ---
 
-## 📁 Structure du dépôt
+##  Structure du dépôt
 
 ```
 .
@@ -121,7 +121,7 @@ Ce projet permet d'apprendre :
 
 ---
 
-## 🎯 Partie obligatoire (threads + mutex)
+##  Partie obligatoire (threads + mutex)
 
 ### But
 
@@ -237,7 +237,7 @@ Monitor Thread:
 
 ---
 
-## 🎯 Partie bonus (processus + sémaphores)
+##  Partie bonus (processus + sémaphores)
 
 ### But
 
@@ -399,7 +399,7 @@ Les seuls objets partagés sont les **sémaphores** (gérés par l'OS dans `/dev
 
 ---
 
-## ❓ Questions d'évaluation (réponses courtes)
+##  Questions d'évaluation (réponses courtes)
 
 ### philo (obligatoire)
 
@@ -422,7 +422,7 @@ Les seuls objets partagés sont les **sémaphores** (gérés par l'OS dans `/dev
 
 ---
 
-## 📚 Notions à apprendre (checklist)
+##  Notions à apprendre (checklist)
 
 ### Concepts fondamentaux
 
@@ -459,7 +459,7 @@ Les seuls objets partagés sont les **sémaphores** (gérés par l'OS dans `/dev
 
 ---
 
-## 🔨 Commandes utiles
+##  Commandes utiles
 
 ### Build
 
@@ -543,7 +543,7 @@ rm /dev/shm/philo_*
 
 ---
 
-## 🐛 Problèmes courants
+##  Problèmes courants
 
 ### Data race détecté
 
@@ -602,7 +602,7 @@ rm /dev/shm/philo_*
 
 ---
 
-## 📝 Notes importantes
+##  Notes importantes
 
 ### Différences clés obligatoire vs bonus
 
