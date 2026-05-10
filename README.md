@@ -1,4 +1,4 @@
-#  Philosophers (philo + philo_bonus)
+# Philosophers
 
 ![C](https://img.shields.io/badge/C-00599C?style=for-the-badge&logo=c&logoColor=white)
 ![42](https://img.shields.io/badge/42-000000?style=for-the-badge&logo=42&logoColor=white)
@@ -7,203 +7,125 @@
 [![Norminette](https://img.shields.io/badge/Norminette-passing-success?style=for-the-badge)](https://github.com/42School/norminette)
 ![Grade](https://img.shields.io/badge/Grade-125%2F100-brightgreen?style=for-the-badge)
 
-> *"I think, therefore I am... hungry"* - Dining Philosophers
+*"I think, therefore I am... hungry"*
+
+Implémentation en C du problème des philosophes dîneurs — deux versions : threads + mutex (mandatory), processus + sémaphores (bonus).
 
 ---
 
-##  Table des matières
+## Table des matières
 
-1. [Description du projet](#-description-du-projet)
-2. [Structure du dépôt](#-structure-du-dépôt)
-3. [Partie obligatoire (threads + mutex)](#-partie-obligatoire-threads--mutex)
-4. [Partie bonus (processus + sémaphores)](#-partie-bonus-processus--sémaphores)
-5. [Questions d'évaluation](#-questions-dévaluation-réponses-courtes)
-6. [Notions à apprendre](#-notions-à-apprendre-checklist)
-7. [Commandes utiles](#-commandes-utiles)
-8. [Problèmes courants](#-problèmes-courants)
-9. [Ressources](#-ressources)
-10. [Notes importantes](#-notes-importantes)
+1. [Description du projet](#description-du-projet)
+2. [Structure du dépôt](#structure-du-dépôt)
+3. [Partie obligatoire — threads + mutex](#partie-obligatoire--threads--mutex)
+4. [Partie bonus — processus + sémaphores](#partie-bonus--processus--sémaphores)
+5. [Questions d'évaluation](#questions-dévaluation)
+6. [Notions à apprendre](#notions-à-apprendre)
+7. [Commandes utiles](#commandes-utiles)
+8. [Problèmes courants](#problèmes-courants)
+9. [Ressources](#ressources)
 
 ---
 
-##  Description du projet
+## Description du projet
 
-### Le problème des philosophes dîneurs
+N philosophes sont assis autour d'une table ronde. N fourchettes les séparent — une entre chaque paire. Un philosophe a besoin des **deux** fourchettes adjacentes pour manger.
 
-Le projet **Philosophers** est une implémentation en C du célèbre problème de synchronisation créé par Edsger Dijkstra en 1965.
+![Table des philosophes](https://github.com/user-attachments/assets/14b1fdbb-36e8-46a4-91c0-a5d3e82b86df)
 
-####  Le scénario
-
-N philosophes sont assis autour d'une table ronde. Devant chaque philosophe se trouve un bol de spaghetti. Entre chaque paire de philosophes se trouve une fourchette (donc N fourchettes au total).
-
-```
-           🍴
-      👤       👤
-   🍴             🍴
-      👤   🍝   👤
-   🍴             🍴
-      👤       👤
-           🍴
-```
-
-####  Le cycle de vie d'un philosophe
+### Cycle de vie
 
 Un philosophe alterne entre trois états :
-1. **🤔 PENSER** : Réfléchir sur les mystères de l'univers
-2. **🍝 MANGER** : Nécessite **2 fourchettes** (gauche ET droite)
-3. **😴 DORMIR** : Se reposer après avoir mangé
 
-####  Les règles
+| État | Condition |
+|------|-----------|
+| Penser | état par défaut |
+| Manger | nécessite 2 fourchettes (gauche + droite) |
+| Dormir | après avoir mangé |
 
-- Un philosophe doit avoir **2 fourchettes** pour manger
-- Un philosophe **prend une fourchette à la fois**
-- Un philosophe **pose ses fourchettes** après avoir mangé
-- Les fourchettes sont des **ressources partagées** (exclusivité mutuelle)
+### Conditions d'arrêt
 
-####  Conditions d'arrêt
+- Un philosophe n'a pas mangé depuis `time_to_die` millisecondes → mort
+- Tous ont mangé `nb_meals` fois → objectif atteint (optionnel)
 
-La simulation s'arrête quand :
-- ❌ **Un philosophe meurt** : n'a pas mangé pendant `time_to_die` millisecondes
-- ✅ **Objectif atteint** : tous les philosophes ont mangé `nb_meals` fois (optionnel)
+### Défis à résoudre
 
-####  Les défis à résoudre
+| Problème | Description |
+|----------|-------------|
+| Deadlock | Tous prennent 1 fourchette et attendent la 2e indéfiniment |
+| Race condition | Accès concurrent aux ressources partagées |
+| Starvation | Un philosophe n'arrive jamais à obtenir 2 fourchettes |
+| Data race | Lectures/écritures simultanées sur les mêmes données |
 
-1. **Deadlock (interblocage)** : Tous prennent 1 fourchette et attendent la 2e indéfiniment
-2. **Race conditions** : Accès concurrent aux ressources partagées
-3. **Starvation (famine)** : Un philosophe ne parvient jamais à obtenir 2 fourchettes
-4. **Data races** : Lectures/écritures simultanées sur les mêmes données
+### Deux implémentations
 
-###  Objectifs pédagogiques
-
-Ce projet permet d'apprendre :
-
-- ✅ La programmation **multi-thread** (philo) et **multi-processus** (philo_bonus)
-- ✅ Les mécanismes de **synchronisation** (mutex, sémaphores)
-- ✅ La gestion des **problèmes de concurrence**
-- ✅ L'utilisation de la **mémoire partagée** vs **isolée**
-- ✅ La **précision temporelle** en programmation système
-
-###  Deux implémentations
-
-| Aspect | Philo (mandatory) | Philo_bonus |
-|--------|-------------------|-------------|
-| Unité d'exécution | **Threads** | **Processus** |
+| Aspect | Mandatory (philo) | Bonus (philo_bonus) |
+|--------|-------------------|---------------------|
+| Unité d'exécution | Threads | Processus |
 | Mémoire | Partagée | Isolée |
-| Synchronisation | Mutex | Sémaphores |
-| Complexité | ⭐⭐⭐ | ⭐⭐⭐⭐ |
+| Synchronisation | Mutex | Sémaphores nommés |
+| Fourchettes | `pthread_mutex_t forks[]` | `sem_t *` comptage |
+| Anti-deadlock | Lock-ordering par adresse | `seats_sem = N−1` |
+| Monitor | 1 thread global | 1 thread par processus |
 
 ---
 
-##  Structure du dépôt
+## Structure du dépôt
 
 ```
 .
-├── philo/              # Partie obligatoire (threads + mutex)
+├── philo/
 │   ├── includes/
 │   │   └── philo.h
 │   └── srcs/
-│       ├── main.c         # Point d'entrée, orchestration
-│       ├── init.c         # Allocation et init des mutex
-│       ├── routine.c      # Routine des philosophes
-│       ├── forks.c        # Gestion des fourchettes
-│       ├── monitor.c      # Détection mort + objectif
-│       ├── print.c        # Affichage synchronisé
-│       └── time.c         # Gestion du temps précis
+│       ├── main.c         # orchestration
+│       ├── init.c         # allocation + init mutex
+│       ├── routine.c      # routine des philosophes
+│       ├── forks.c        # prise et libération des fourchettes
+│       ├── monitor.c      # détection mort + objectif
+│       ├── print.c        # affichage synchronisé
+│       └── time.c         # horloge + ft_usleep précis
 │
-└── philo_bonus/        # Partie bonus (processus + sémaphores)
+└── philo_bonus/
     ├── includes/
     │   └── philo_bonus.h
     └── srcs/
         ├── main_bonus.c      # fork() + waitpid()
-        ├── init_bonus.c      # Sémaphores globaux
-        ├── routine_bonus.c   # Routine d'un philosophe
-        ├── monitor_bonus.c   # Détection mort (par process)
-        ├── forks_bonus.c     # Gestion des fourchettes
+        ├── init_bonus.c      # sémaphores globaux
+        ├── routine_bonus.c   # routine d'un philosophe
+        ├── monitor_bonus.c   # détection mort par processus
+        ├── forks_bonus.c     # gestion des fourchettes
         ├── cleanup_bonus.c   # signal_stop() + cleanup
-        ├── print_bonus.c     # Affichage protégé
-        ├── time_bonus.c      # Gestion du temps
-        ├── parsing_bonus.c   # Validation des arguments
-        └── utils_bonus.c     # Utilitaires
+        ├── print_bonus.c     # affichage protégé
+        ├── time_bonus.c      # gestion du temps
+        ├── parsing_bonus.c   # validation des arguments
+        └── utils_bonus.c     # utilitaires
 ```
 
 ---
 
-##  Partie obligatoire (threads + mutex)
+## Partie obligatoire — threads + mutex
 
-### But
+Un thread par philosophe + un thread monitor. Les fourchettes sont des mutex.
 
-Simuler N philosophes avec des **threads**. Chaque philosophe doit prendre deux fourchettes (mutex) pour manger. La simulation s'arrête quand :
-- Un philosophe meurt (ne mange pas pendant `time_to_die`)
-- Tous ont mangé `nb_meals` fois (optionnel)
+### Flux d'exécution
 
-### Fichiers clés
+![Flux d'exécution mandatory](https://github.com/user-attachments/assets/6b98ec0b-cb69-4222-9a63-6f97c620065a)
 
-| Fichier | Rôle |
-|---------|------|
-| `main.c` | Orchestration principale |
-| `init.c` | Allocation et init des mutex/fourchettes |
-| `routine.c` | Routine des philosophes (boucle de vie) |
-| `forks.c` | Prise et libération des fourchettes |
-| `monitor.c` | Thread monitor (détection mort + repas) |
-| `print.c` | Affichage protégé |
-| `time.c` | Horloge + `ft_usleep` précis |
+### Mutex utilisés
 
-### Chemin d'exécution (flow)
-
-```
-1. main
-   └─→ parse_arguments()
-       └─→ init_simulation()
-           ├─→ Allouer philos[]
-           ├─→ Allouer forks[] (mutex)
-           └─→ Initialiser tous les mutex
-
-2. create_philosophers()
-   └─→ pthread_create() × N
-       └─→ Chaque thread exécute philosopher_routine()
-
-3. create_monitor()
-   └─→ pthread_create()
-       └─→ Thread monitor exécute monitor_routine()
-
-4. Boucle de chaque philosophe
-   ┌──────────────────────────┐
-   │ while (!simulation_ended)│
-   │   think()                │
-   │   take_forks()           │
-   │   eat()                  │
-   │   put_down_forks()       │
-   │   sleep_philo()          │
-   └──────────────────────────┘
-
-5. Monitor détecte
-   ├─→ Mort d'un philo → simulation_ended = 1
-   └─→ Tous ont mangé → simulation_ended = 1
-
-6. main
-   ├─→ pthread_join() sur tous les threads
-   └─→ cleanup() (destroy mutex, free)
-```
-
-### Synchronisation et sécurité
-
-#### Mutex utilisés
-
-| Mutex | Portée | Protection |
-|-------|--------|------------|
-| `forks[]` | 1 par fourchette | Ressource exclusive (fourchette) |
+| Mutex | Nombre | Protège |
+|-------|--------|---------|
+| `forks[]` | 1 par fourchette | accès exclusif à chaque fourchette |
 | `meal_mutex` | 1 par philosophe | `last_meal_time` et `meals_eaten` |
-| `print_mutex` | Global | Affichage (évite logs mélangés) |
-| `stop_mutex` | Global | `simulation_ended` |
+| `print_mutex` | 1 global | stdout — évite les logs mélangés |
+| `stop_mutex` | 1 global | flag `simulation_ended` |
 
-#### Éviter le deadlock
+### Deadlock — prévention
 
-**Problème :** Si tous les philosophes prennent leur fourchette gauche en même temps → deadlock circulaire.
-
-**Solution :** Ordre de prise des fourchettes par **adresse mémoire** (`philo/src/forks.c`)
+Si tous les philosophes prennent leur fourchette gauche simultanément, plus personne ne peut progresser. Solution : acquérir toujours les fourchettes dans l'ordre croissant des adresses mémoire.
 
 ```c
-// Toujours prendre la fourchette à l'adresse la plus petite d'abord
 if (philo->left_fork < philo->right_fork) {
     pthread_mutex_lock(philo->left_fork);
     pthread_mutex_lock(philo->right_fork);
@@ -213,230 +135,148 @@ if (philo->left_fork < philo->right_fork) {
 }
 ```
 
-→ Casse le cycle de dépendance circulaire.
+Casse le cycle de dépendance circulaire — au moins un philosophe peut toujours progresser.
 
-### Mort d'un philosophe
+### Détection de mort
 
-```
-Monitor Thread:
-  while (!simulation_ended) {
-      for each philo {
-          pthread_mutex_lock(&philo->meal_mutex);
-          time = philo->last_meal_time;
-          pthread_mutex_unlock(&philo->meal_mutex);
+![Détection de mort mandatory](https://github.com/user-attachments/assets/f542b66d-6d39-4658-a7ec-3daf8dc44444)
 
-          if (now - time > time_to_die) {
-              pthread_mutex_lock(&stop_mutex);
-              simulation_ended = 1;
-              pthread_mutex_unlock(&stop_mutex);
+`eat()` écrit `last_meal_time` sous `meal_mutex`. Le monitor lit `last_meal_time` sous le même mutex. Pas de race condition possible entre les deux.
 
-              print_status(philo, "died");
-              return;
-          }
-      }
-  }
-```
+### Fichiers clés
 
-**Protection contre les data races :**
-- `eat()` écrit `last_meal_time` sous `meal_mutex`
-- `monitor_routine()` lit `last_meal_time` sous `meal_mutex`
-- Pas de race condition possible
+| Fichier | Rôle |
+|---------|------|
+| `main.c` | orchestration principale |
+| `init.c` | allocation + init mutex/fourchettes |
+| `routine.c` | boucle de vie des philosophes |
+| `forks.c` | prise et libération des fourchettes |
+| `monitor.c` | thread monitor — détection mort + repas |
+| `print.c` | affichage protégé par `print_mutex` |
+| `time.c` | `gettimeofday()` + `ft_usleep` précis |
 
 ---
 
-##  Partie bonus (processus + sémaphores)
+## Partie bonus — processus + sémaphores
 
-### But
+Un processus par philosophe. Mémoire isolée — toute la communication passe par des sémaphores nommés dans `/dev/shm`. Chaque processus contient deux threads internes : `monitor_thread` et `stop_thread`.
 
-Simuler N philosophes avec **1 processus par philosophe**. Les fourchettes sont représentées par un seul sémaphore de comptage. Chaque processus contient 2 threads :
-- `monitor_thread` : surveille la mort
-- `stop_thread` : écoute le signal d'arrêt
+### Flux d'exécution
+
+![Flux d'exécution bonus](https://github.com/user-attachments/assets/78cbaed5-0c71-4bd5-b4fe-6b8c627851ef)
+
+### Sémaphores globaux
+
+| Sémaphore | Init | Rôle |
+|-----------|------|------|
+| `SEM_FORKS` | `nb_philos` | pool de fourchettes disponibles |
+| `SEM_SEATS` | `nb_philos − 1` | limite les philos pouvant tenter de manger |
+| `SEM_PRINT` | `1` | mutex pour stdout |
+
+### Sémaphores individuels (1 par philosophe)
+
+| Sémaphore | Init | Rôle |
+|-----------|------|------|
+| `meal_sem` | `1` | protège `last_meal_time` et `meals_eaten` |
+| `stop_sem` | `0` | signal d'arrêt — débloque `stop_thread` |
+
+### Deadlock — prévention
+
+`SEM_SEATS` limite à `nb_philos − 1` le nombre de philosophes qui peuvent **tenter** de prendre des fourchettes simultanément.
+
+```c
+void take_forks(t_philo *philo)
+{
+    sem_wait(seats_sem);   // au plus N-1 philosophes en compétition
+    sem_wait(forks_sem);   // fourchette 1
+    sem_wait(forks_sem);   // fourchette 2
+}
+
+void put_down_forks(t_philo *philo)
+{
+    sem_post(forks_sem);
+    sem_post(forks_sem);
+    sem_post(seats_sem);
+}
+```
+
+Avec 5 philosophes et 4 sièges : 4 philosophes prennent chacun 1 fourchette, il reste 1 fourchette libre, au moins 1 peut manger, libère 2 fourchettes → cascade de déblocage.
+
+### Détection de mort et propagation
+
+```c
+// Monitor thread (dans le processus qui détecte la mort)
+while (!stop) {
+    sem_wait(meal_sem);
+    time = last_meal_time;
+    sem_post(meal_sem);
+
+    if (now - time > time_to_die) {
+        stop = 1;
+        print_status("died");
+        signal_stop(data);   // poste tous les stop_sem
+        return;
+    }
+}
+
+// signal_stop() — réveille tous les stop_thread
+for (int i = 0; i < nb_philos; i++)
+    sem_post(philos[i].stop_sem);
+
+// Stop thread (dans les autres processus)
+sem_wait(stop_sem);   // bloqué jusqu'ici
+stop = 1;             // déclenche l'arrêt
+```
+
+### Pas de data race inter-processus
+
+Chaque philosophe est un processus avec sa propre copie mémoire. `data->stop` du processus 1 est indépendant de `data->stop` du processus 2. La seule communication passe par les sémaphores, gérés par l'OS.
 
 ### Fichiers clés
 
 | Fichier | Rôle |
 |---------|------|
 | `main_bonus.c` | `fork()` + `waitpid()` |
-| `init_bonus.c` | Sémaphores globaux + par philo |
-| `routine_bonus.c` | Routine d'un philosophe |
-| `monitor_bonus.c` | Détection de mort dans chaque process |
-| `forks_bonus.c` | Prise/libération des fourchettes |
+| `init_bonus.c` | sémaphores globaux + par philosophe |
+| `routine_bonus.c` | routine d'un philosophe |
+| `monitor_bonus.c` | détection de mort dans chaque processus |
+| `forks_bonus.c` | prise/libération des fourchettes |
 | `cleanup_bonus.c` | `signal_stop()` + cleanup |
-| `print_bonus.c` | Affichage protégé par sémaphore |
-
-### Sémaphores utilisés
-
-#### Globaux (partagés par tous les processus)
-
-| Sémaphore | Init | Rôle |
-|-----------|------|------|
-| `SEM_FORKS` | `nb_philos` | Pool de fourchettes disponibles |
-| `SEM_SEATS` | `nb_philos - 1` | Limite les philos qui peuvent tenter de manger (anti-deadlock) |
-| `SEM_PRINT` | `1` | Mutex pour l'affichage |
-
-#### Individuels (1 par philosophe)
-
-| Sémaphore | Init | Rôle |
-|-----------|------|------|
-| `meal_sem` | `1` | Protège `last_meal_time` et `meals_eaten` |
-| `stop_sem` | `0` | Signal d'arrêt (réveille `stop_thread`) |
-
-### Chemin d'exécution (flow)
-
-#### Processus Parent
-
-```
-1. main
-   └─→ parse_arguments()
-       └─→ init_data()
-           ├─→ sem_open(SEM_FORKS, nb_philos)
-           ├─→ sem_open(SEM_SEATS, nb_philos - 1)
-           ├─→ sem_open(SEM_PRINT, 1)
-           └─→ Pour chaque philo:
-               ├─→ sem_open(meal_sem, 1)
-               └─→ sem_open(stop_sem, 0)
-
-2. create_processes()
-   └─→ fork() × N fois
-       └─→ Chaque enfant exécute philosopher_routine()
-
-3. wait_children()
-   └─→ waitpid(-1, &status, 0)
-       └─→ Si un enfant meurt (exit != 0):
-           └─→ signal_stop() → réveille tous les autres
-```
-
-#### Processus Enfant
-
-```
-1. philosopher_routine()
-   ├─→ start_stop_watcher()
-   │   └─→ pthread_create(&stop_thread)
-   │       └─→ sem_wait(stop_sem) ← BLOQUÉ jusqu'au signal
-   │
-   ├─→ start_monitor()
-   │   └─→ pthread_create(&monitor_thread)
-   │       └─→ Surveille last_meal_time
-   │
-   └─→ Boucle principale
-       ┌──────────────────────┐
-       │ while (!stop) {      │
-       │   take_forks()       │
-       │   eat()              │
-       │   put_down_forks()   │
-       │   sleep_philo()      │
-       │   think()            │
-       │ }                    │
-       └──────────────────────┘
-
-2. Si mort ou nb_meals atteint
-   └─→ child_exit()
-       ├─→ pthread_join(stop_thread)
-       ├─→ pthread_join(monitor_thread)
-       ├─→ cleanup_child()
-       └─→ exit(exit_status)
-```
-
-### Éviter le deadlock (bonus)
-
-**Problème :** Si tous les philosophes font `sem_wait(forks)` en même temps, ils prennent tous 1 fourchette → deadlock.
-
-**Solution :** `SEM_SEATS` limite à `nb_philos - 1` le nombre de philosophes qui peuvent **tenter** de prendre des fourchettes.
-
-```c
-int take_forks(t_philo *philo)
-{
-    sem_wait(seats_sem);      // Max N-1 philosophes
-    sem_wait(forks);          // Prendre fourchette 1
-    sem_wait(forks);          // Prendre fourchette 2
-    return 0;
-}
-
-void put_down_forks(t_philo *philo)
-{
-    sem_post(forks);          // Rendre fourchette 1
-    sem_post(forks);          // Rendre fourchette 2
-    sem_post(seats_sem);      // Libérer le siège
-}
-```
-
-**Pourquoi ça marche ?**
-- Si 5 philosophes et 4 sièges max
-- 4 philosophes prennent 1 fourchette chacun
-- Il reste 1 fourchette libre
-- Au moins 1 des 4 peut prendre cette fourchette → mange → libère 2 fourchettes
-- Cascade de déblocage
-
-### Mort d'un philosophe (bonus)
-
-```
-Monitor Thread (dans le processus qui meurt):
-  while (!stop) {
-      sem_wait(meal_sem);
-      time = last_meal_time;
-      sem_post(meal_sem);
-
-      if (now - time > time_to_die) {
-          stop = 1;
-          print_status("died");
-          signal_stop(data);  // ← IMPORTANT
-          return;
-      }
-  }
-
-signal_stop(data):
-  for (i = 0; i < nb_philos; i++) {
-      sem_post(philos[i].stop_sem);  // Réveille tous les Stop Threads
-  }
-
-Stop Thread (dans les AUTRES processus):
-  sem_wait(stop_sem);  // ← Se réveille quand signal_stop() appelé
-  stop = 1;            // Déclenche l'arrêt du processus
-  return;
-```
-
-### Pourquoi il n'y a pas de data race inter-process
-
-**Chaque philosophe est un processus** : pas de mémoire partagée entre eux.
-
-Les seuls objets partagés sont les **sémaphores** (gérés par l'OS dans `/dev/shm`).
-
-- `data->stop` dans le processus 1 ≠ `data->stop` dans le processus 2 (copies indépendantes)
-- Communication uniquement via sémaphores (`stop_sem`, `meal_sem`, etc.)
+| `print_bonus.c` | affichage protégé par `SEM_PRINT` |
 
 ---
 
-##  Questions d'évaluation (réponses courtes)
+## Questions d'évaluation
 
-### philo (obligatoire)
+### Mandatory
 
-| Question | Réponse | Où dans le code ? |
-|----------|---------|-------------------|
-| 1 thread par philosophe ? | ✅ Oui | `create_philosophers()` crée 1 thread par philo |
-| 1 fourchette par philosophe ? | ✅ Oui | `forks[]` de taille `nb_philos` |
-| 1 mutex par fourchette ? | ✅ Oui | Chaque `forks[i]` est un `pthread_mutex_t` |
-| Output non mélangé ? | ✅ Oui | `print_status()` protégé par `print_mutex` |
-| Mort + protection "mange/mort" ? | ✅ Oui | Monitor lit `last_meal_time` sous `meal_mutex`, `eat()` écrit sous le même mutex |
+| Question | Réponse | Où dans le code |
+|----------|---------|-----------------|
+| 1 thread par philosophe ? | Oui | `create_philosophers()` — 1 `pthread_create` par philo |
+| 1 fourchette par philosophe ? | Oui | `forks[]` de taille `nb_philos` |
+| 1 mutex par fourchette ? | Oui | chaque `forks[i]` est un `pthread_mutex_t` |
+| Output non mélangé ? | Oui | `print_status()` protégé par `print_mutex` |
+| Protection mange/mort ? | Oui | `eat()` écrit sous `meal_mutex`, monitor lit sous le même |
 
-### philo_bonus (bonus)
+### Bonus
 
-| Question | Réponse | Où dans le code ? |
-|----------|---------|-------------------|
-| 1 processus par philosophe + parent attend ? | ✅ Oui | `fork()` dans `create_processes()`, parent fait `waitpid()` |
-| 1 sémaphore global pour les fourchettes ? | ✅ Oui | `SEM_FORKS` est un sémaphore de comptage |
-| Output non mélangé ? | ✅ Oui | `SEM_PRINT` garantit un seul affichage à la fois |
-| Mort + protection "mange/mort" ? | ✅ Oui | `meal_sem` protège `last_meal_time` entre `eat()` et `monitor_thread`. En cas de mort : `signal_stop()` réveille tous les processus |
+| Question | Réponse | Où dans le code |
+|----------|---------|-----------------|
+| 1 processus par philosophe, parent attend ? | Oui | `fork()` dans `create_processes()`, parent dans `waitpid()` |
+| 1 sémaphore global pour les fourchettes ? | Oui | `SEM_FORKS` — sémaphore de comptage |
+| Output non mélangé ? | Oui | `SEM_PRINT` — un seul affichage à la fois |
+| Protection mange/mort ? | Oui | `meal_sem` protège `last_meal_time` ; mort → `signal_stop()` |
 
 ---
 
-##  Notions à apprendre (checklist)
+## Notions à apprendre
 
 ### Concepts fondamentaux
 
-- [ ] **Processus vs threads** (mémoire partagée ou non)
-- [ ] **Mutex vs sémaphore** (binaire vs comptage)
-- [ ] **Data race** et comment les éviter
-- [ ] **Deadlock** et stratégies d'évitement (ordre, N-1 seats)
+- [ ] Processus vs threads — mémoire partagée ou isolée
+- [ ] Mutex vs sémaphore — binaire vs comptage
+- [ ] Data race — définition et prévention
+- [ ] Deadlock — stratégies d'évitement (lock-ordering, N−1 seats)
 
 ### Synchronisation
 
@@ -448,44 +288,26 @@ Les seuls objets partagés sont les **sémaphores** (gérés par l'OS dans `/dev
 
 - [ ] `fork()`, `waitpid()`, `exit()`
 - [ ] `pthread_create()`, `pthread_join()`
-- [ ] `pthread_mutex_lock()`, `pthread_mutex_unlock()`
+- [ ] `pthread_mutex_lock()`, `pthread_mutex_unlock()`, `pthread_mutex_destroy()`
 - [ ] `sem_open()`, `sem_wait()`, `sem_post()`, `sem_close()`, `sem_unlink()`
-
-### Gestion du temps
-
-- [ ] `gettimeofday()` pour obtenir le timestamp
-- [ ] Précision temporelle (pourquoi pas `usleep()` direct)
-- [ ] Boucle d'attente avec vérification de `stop`
+- [ ] `gettimeofday()`
 
 ### Nettoyage des ressources
 
-- [ ] `pthread_mutex_destroy()`
-- [ ] `sem_close()` + `sem_unlink()`
+- [ ] `pthread_mutex_destroy()` pour chaque mutex
+- [ ] `sem_close()` dans tous les processus, `sem_unlink()` seulement dans le parent
 - [ ] `free()` de toute la mémoire allouée
 - [ ] Vérification avec Valgrind
 
 ---
 
-##  Commandes utiles
+## Commandes utiles
 
 ### Build
 
 ```bash
-# Partie obligatoire
 make -C philo
-
-# Partie bonus
 make -C philo_bonus
-
-# Clean
-make -C philo clean
-make -C philo_bonus clean
-
-# Fclean
-make -C philo fclean
-make -C philo_bonus fclean
-
-# Re
 make -C philo re
 make -C philo_bonus re
 ```
@@ -493,150 +315,71 @@ make -C philo_bonus re
 ### Run
 
 ```bash
-# Syntaxe
-./philo number_of_philosophers time_to_die time_to_eat time_to_sleep [number_of_times_each_philosopher_must_eat]
+# ./philo nb_philos time_to_die time_to_eat time_to_sleep [nb_meals]
 
-# Partie obligatoire
-./philo 5 800 200 200        # Simulation infinie
-./philo 5 800 200 200 7      # Chaque philo doit manger 7 fois
-
-# Partie bonus
+./philo 5 800 200 200          # simulation infinie
+./philo 5 800 200 200 7        # s'arrête après 7 repas chacun
 ./philo_bonus 5 800 200 200
 ./philo_bonus 5 800 200 200 7
 ```
 
-### Tests
+### Tests de référence
 
 ```bash
-# Ne doit pas mourir
+# ne doit pas mourir
 ./philo 5 800 200 200
 ./philo 4 410 200 200
 
-# Un philosophe doit mourir
+# doit mourir
 ./philo 4 310 200 100
-./philo 1 800 200 200        # 1 seul philo (ne peut pas manger)
+./philo 1 800 200 200    # 1 seul philo — ne peut pas manger
 
-# Beaucoup de philosophes
+# charge
 ./philo 200 800 200 200
 ./philo_bonus 200 800 200 200
-
-# Avec objectif
-./philo 5 800 200 200 5
-./philo_bonus 5 800 200 200 5
 ```
 
 ### Valgrind
 
 ```bash
-# Partie obligatoire
+# mandatory
 valgrind --leak-check=full --show-leak-kinds=all \
   ./philo 5 800 200 200 7
 
-# Partie bonus (important : --trace-children=yes)
+# bonus — trace les processus enfants
 valgrind --leak-check=full --show-leak-kinds=all \
   --track-fds=yes --trace-children=yes \
   ./philo_bonus 5 800 200 200 7
-```
 
-### Vérifier les sémaphores résiduels
-
-```bash
-# Après exécution de philo_bonus, vérifier :
+# vérifier les sémaphores résiduels
 ls /dev/shm | grep philo
-
-# Si des fichiers restent, les supprimer :
-rm /dev/shm/philo_*
+rm /dev/shm/philo_*          # si des fichiers restent
 ```
 
 ---
 
-##  Problèmes courants
+## Problèmes courants
 
-### Data race détecté
+**Data race détecté (Helgrind/TSan)**
+Protéger tous les accès à `last_meal_time` et `meals_eaten` par `meal_mutex`/`meal_sem`. Protéger `simulation_ended`/`stop` par `stop_mutex`.
 
-**Symptôme :** Helgrind/TSan détecte des accès concurrents
+**Deadlock — programme bloqué**
+Mandatory : vérifier l'ordre de prise des fourchettes par adresse.
+Bonus : vérifier que `seats_sem` est initialisé à `nb_philos − 1`.
 
-**Solution :**
-- Protéger TOUS les accès à `last_meal_time` et `meals_eaten` par `meal_mutex`/`meal_sem`
-- Protéger `simulation_ended`/`stop` par `stop_mutex` ou vérifier atomiquement
+**Messages mélangés**
+Tout `printf` doit être sous `print_mutex` (mandatory) ou `SEM_PRINT` (bonus).
 
-### Deadlock
-
-**Symptôme :** Le programme se bloque, rien ne se passe
-
-**Solution (philo) :**
-- Ordre de prise des fourchettes par adresse
-
-**Solution (philo_bonus) :**
-- Utiliser `seats_sem` avec valeur `nb_philos - 1`
-
-### Messages mélangés
-
-**Symptôme :** `"42 1 is42 2 eating sleeping"`
-
-**Solution :**
-- Protéger `printf()` par `print_mutex` ou `SEM_PRINT`
-
-### Sémaphores non nettoyés (bonus)
-
-**Symptôme :** `sem_open: File exists`
-
-**Solution :**
-- Appeler `sem_unlink()` dans `cleanup_data()`
-- Vérifier avec `ls /dev/shm`
+**`sem_open: File exists`**
+Appeler `sem_unlink()` dans `cleanup_data()`. Vérifier avec `ls /dev/shm`.
 
 ---
 
-## 📖 Ressources
+## Ressources
 
-### Différences processus/threads
-- [ByteByteGo - Process vs Thread](https://bytebytego.com/guides/what-is-the-difference-between-process-and-thread/)
-- [CodeQuoi - Threads, Mutex et programmation concurrente](https://www.codequoi.com/threads-mutex-et-programmation-concurrente-en-c/)
-
-### Communication inter-processus
-- [ByteByteGo - Process Communication on Linux](https://bytebytego.com/guides/how-do-processes-talk-to-each-other-on-linux/)
-
-### Sémaphores
-- [Eric Lo - Synchronization with Semaphores](https://eric-lo.gitbook.io/synchronization/semaphore-in-c)
-- [Tala Informatique - Sémaphores en C](https://tala-informatique.fr/index.php?title=C_semaphore)
-
-### Documentation officielle
-- [man pthread_create](https://man7.org/linux/man-pages/man3/pthread_create.3.html)
-- [man pthread_mutex_lock](https://man7.org/linux/man-pages/man3/pthread_mutex_lock.3p.html)
-- [man sem_open](https://man7.org/linux/man-pages/man3/sem_open.3.html)
-- [man fork](https://man7.org/linux/man-pages/man2/fork.2.html)
-- [man waitpid](https://man7.org/linux/man-pages/man2/waitpid.2.html)
-
----
-
-##  Notes importantes
-
-### Différences clés obligatoire vs bonus
-
-| Aspect | Obligatoire (philo) | Bonus (philo_bonus) |
-|--------|---------------------|---------------------|
-| **Unité d'exécution** | Threads | Processus |
-| **Mémoire** | Partagée | Isolée (copies) |
-| **Synchronisation** | Mutex | Sémaphores nommés |
-| **Fourchettes** | `pthread_mutex_t forks[]` | `sem_t *forks` (comptage) |
-| **Anti-deadlock** | Ordre de prise | `seats_sem = N-1` |
-| **Monitor** | 1 thread global | 1 thread par processus |
-| **Communication** | Variables partagées | Sémaphores (`stop_sem`) |
-
-### Points d'attention
-
-⚠️ **philo (obligatoire) :**
-- Toujours détruire les mutex (`pthread_mutex_destroy`)
-- Un seul thread monitor pour tous les philosophes
-- Ordre de prise des fourchettes crucial
-
-⚠️ **philo_bonus :**
-- Faire `sem_close()` dans TOUS les processus
-- Faire `sem_unlink()` seulement dans le parent
-- Utiliser `--trace-children=yes` avec Valgrind
-- Chaque processus a son propre `monitor_thread` et `stop_thread`
-
----
-
-**Bon appétit philosophique ! 🍝🍴**
-
+- [ByteByteGo — Process vs Thread](https://bytebytego.com/guides/what-is-the-difference-between-process-and-thread/)
+- [ByteByteGo — Process Communication on Linux](https://bytebytego.com/guides/how-do-processes-talk-to-each-other-on-linux/)
+- [CodeQuoi — Threads, Mutex et programmation concurrente](https://www.codequoi.com/threads-mutex-et-programmation-concurrente-en-c/)
+- [Eric Lo — Synchronization with Semaphores](https://eric-lo.gitbook.io/synchronization/semaphore-in-c)
+- `man pthread_create`, `man pthread_mutex_lock`, `man sem_open`, `man fork`, `man waitpid`
+- Dijkstra, E.W. (1965) — *Cooperating Sequential Processes*
