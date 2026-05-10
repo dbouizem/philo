@@ -1,5 +1,12 @@
 #  Philosophers (philo + philo_bonus)
 
+![C](https://img.shields.io/badge/C-00599C?style=for-the-badge&logo=c&logoColor=white)
+![42](https://img.shields.io/badge/42-000000?style=for-the-badge&logo=42&logoColor=white)
+[![POSIX Threads](https://img.shields.io/badge/POSIX-Threads-1f6feb?style=for-the-badge)](https://en.wikipedia.org/wiki/Pthreads)
+[![Synchronization](https://img.shields.io/badge/Synchronization-Mutexes%20%26%20Semaphores-8a2be2?style=for-the-badge)](https://en.wikipedia.org/wiki/Semaphore_(programming))
+[![Norminette](https://img.shields.io/badge/Norminette-passing-success?style=for-the-badge)](https://github.com/42School/norminette)
+![Grade](https://img.shields.io/badge/Grade-125%2F100-brightgreen?style=for-the-badge)
+
 > *"I think, therefore I am... hungry"* - Dining Philosophers
 
 ---
